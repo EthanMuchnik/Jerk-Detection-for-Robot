@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <TimedRobot.h>
+#include <Timer.h>
 #include "Robot.h"
 
 
@@ -26,17 +27,15 @@ Robot::Robot() :
 	DriveTrain(LeftMotors, RightMotors),
 	ahrs(SPI::Port::kMXP),
 	AccelOld(0),
-	AccelNew(0)
+	AccelNew(0),
+	JerkShakeTimer(),
+	JerkTimer()
 {
 
 }
 
 
 void Robot::RobotInit()
-{
-
-}
-void Robot::TeleopPeriodic()
 {
 
 }
