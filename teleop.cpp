@@ -13,20 +13,21 @@
 
 void Robot::RumbleOn(double leftVal, double rightVal)
 {
-	void GenericHID::SetRumble(RumbleType kLeftRumble, double leftVal);
-	void GenericHID::SetRumble(RumbleType kRightRumble, double rightVal);
-};
+	DriveController.SetRumble(GenericHID::RumbleType::kLeftRumble, leftVal);
+	DriveController.SetRumble(GenericHID::RumbleType::kRightRumble, leftVal);
+}
 
 
 void Robot::TeleopInit()
 {
-
+	JerkTimer.Start();
 }
 
 void Robot::TeleopPeriodic()
 {
 	double speedVal = 0;
 	double turnVal = 0;
+
 
 	// Different Drive Schemes
 	if(DriveController.GetAButton())
@@ -48,11 +49,21 @@ void Robot::TeleopPeriodic()
 	DriveTrain.ArcadeDrive(speedVal, turnVal);
 	AccelOld = AccelNew;
 	AccelNew = ahrs.GetWorldLinearAccelX();
-	if(AccelOld-AccelNew > 10)
+
+	SmartDashboard::PutNumber("Jerk", (AccelOld-AccelNew) / JerkTimer.Get());
+
+	if((AccelOld - AccelNew) / JerkTimer.Get() > 50)
 	{
+		JerkShakeTimer.Start();
 		RumbleOn(1, 1);
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		RumbleOn(0, 0);
+
 	}
+	if(JerkShakeTimer.HasPeriodPassed(1)){
+		RumbleOn(0, 0);
+		JerkShakeTimer.Stop();
+		JerkShakeTimer.Reset();
+	}
+
+	JerkTimer.Reset();
 
 }
